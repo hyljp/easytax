@@ -1,11 +1,12 @@
 import csv
 import os
+from decimal import Decimal, ROUND_HALF_UP
 
 
 def _clean_amount(amount):
     if not amount:
-        return 0.0
-    return float(str(amount).replace("¥", "").replace(",", ""))
+        return Decimal("0")
+    return Decimal(str(amount).replace("¥", "").replace(",", ""))
 
 
 def create_general_ledger(input_csv, output_dir):
@@ -63,20 +64,24 @@ def generate_trial_balance(ledger_files, date_part, output_dir):
 
     trial_balance = {}
     for ledger_file in ledger_files:
-        account_name = os.path.basename(ledger_file).split("_")[0]
+        # Use rsplit to handle account names containing underscores
+        # Filename format: {account}_{YYYYMM}.csv
+        basename = os.path.basename(ledger_file)
+        name_without_ext = os.path.splitext(basename)[0]
+        account_name = name_without_ext.rsplit("_", 1)[0]
         with open(ledger_file, mode="r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 if account_name not in trial_balance:
-                    trial_balance[account_name] = {"借方": 0.0, "貸方": 0.0}
+                    trial_balance[account_name] = {"借方": Decimal("0"), "貸方": Decimal("0")}
                 if row["借方"]:
                     trial_balance[account_name]["借方"] += _clean_amount(row["借方"])
                 if row["貸方"]:
                     trial_balance[account_name]["貸方"] += _clean_amount(row["貸方"])
 
     out_path = os.path.join(output_dir, f"試算表_{date_part}.csv")
-    total_debit = 0.0
-    total_credit = 0.0
+    total_debit = Decimal("0")
+    total_credit = Decimal("0")
 
     with open(out_path, mode="w", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)
@@ -105,15 +110,15 @@ def generate_yearly_trial_balance(monthly_tb_files, year, output_dir):
                     continue
                 account = row[0]
                 if account not in yearly:
-                    yearly[account] = {"借方": 0.0, "貸方": 0.0}
+                    yearly[account] = {"借方": Decimal("0"), "貸方": Decimal("0")}
                 if row[1]:
                     yearly[account]["借方"] += _clean_amount(row[1])
                 if row[2]:
                     yearly[account]["貸方"] += _clean_amount(row[2])
 
     out_path = os.path.join(output_dir, f"試算表_{year}_年度.csv")
-    total_debit = 0.0
-    total_credit = 0.0
+    total_debit = Decimal("0")
+    total_credit = Decimal("0")
 
     with open(out_path, mode="w", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)

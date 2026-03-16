@@ -16,10 +16,10 @@ OUTPUT_DIR = "./output/財務諸表"
 
 
 class FinancialPage(BasePage):
-    def __init__(self, parent):
+    def __init__(self, parent, config=None):
         super().__init__(parent)
 
-        self.config = ConfigManager()
+        self.config = config or ConfigManager()
         self._tb_csv_path = None
 
         self.grid_columnconfigure(0, weight=1)

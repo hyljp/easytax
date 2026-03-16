@@ -1,11 +1,12 @@
 import csv
 import os
+from decimal import Decimal
 
 
 def _clean_amount(value):
     if not value:
-        return 0.0
-    return float(str(value).replace("¥", "").replace(",", ""))
+        return Decimal("0")
+    return Decimal(str(value).replace("¥", "").replace(",", ""))
 
 
 def generate_income_statement(tb_csv, config_data, year, output_dir):
@@ -64,10 +65,14 @@ def generate_balance_sheet(tb_csv, config_data, year, output_dir):
     asset_accounts = config_data.get("資産", [])
     liability_accounts = config_data.get("負債", [])
     equity_accounts = config_data.get("純資産", [])
+    revenue_accounts = config_data.get("収益", [])
+    expense_accounts = config_data.get("費用", [])
 
     assets = {}
     liabilities = {}
     equity = {}
+    total_revenue = Decimal("0")
+    total_expense = Decimal("0")
 
     with open(tb_csv, mode="r", encoding="utf-8-sig") as f:
         reader = csv.reader(f)
@@ -85,10 +90,16 @@ def generate_balance_sheet(tb_csv, config_data, year, output_dir):
                 liabilities[account] = credit
             elif account in equity_accounts:
                 equity[account] = credit
+            elif account in revenue_accounts:
+                total_revenue += credit
+            elif account in expense_accounts:
+                total_expense += debit
 
-    total_assets = sum(assets.values())
-    total_liabilities = sum(liabilities.values())
-    total_equity = sum(equity.values())
+    net_income = total_revenue - total_expense
+
+    total_assets = sum(assets.values(), Decimal("0"))
+    total_liabilities = sum(liabilities.values(), Decimal("0"))
+    total_equity = sum(equity.values(), Decimal("0")) + net_income
     total_liab_equity = total_liabilities + total_equity
 
     out_path = os.path.join(output_dir, f"貸借対照表_{year}.csv")
@@ -112,6 +123,8 @@ def generate_balance_sheet(tb_csv, config_data, year, output_dir):
         for account, amount in equity.items():
             if amount != 0:
                 writer.writerow([account, amount])
+        if net_income != 0:
+            writer.writerow(["当期純利益", net_income])
         writer.writerow(["純資産合計", total_equity])
         writer.writerow([])
         writer.writerow(["負債・純資産合計", total_liab_equity])

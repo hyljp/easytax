@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
@@ -7,7 +8,7 @@ from PIL import Image
 from app.pages.base_page import BasePage
 from app.components.image_viewer import ImageViewer
 from app.components.account_form import AccountForm
-from app.services.config_manager import ConfigManager
+from app.services.config_manager import ConfigManager  # used as fallback
 from app.services.image_navigator import ImageNavigator, move_file
 from app.services.csv_manager import write_to_journal, DuplicateVoucherError, DuplicateEntryError
 
@@ -17,10 +18,10 @@ PHOTO_DIR = "./output/photo"
 
 
 class InvoicePage(BasePage):
-    def __init__(self, parent):
+    def __init__(self, parent, config=None):
         super().__init__(parent)
 
-        self.config = ConfigManager()
+        self.config = config or ConfigManager()
         self.navigator = ImageNavigator()
         self.current_image = None  # PIL Image of current (possibly rotated)
         self._zoom = 1.0
@@ -163,7 +164,17 @@ class InvoicePage(BasePage):
             messagebox.showerror("エラー", "日付、価額、勘定項目、および支払方式は必須です。")
             return
 
+        if len(date_val) != 4 or not date_val.isdigit():
+            messagebox.showerror("エラー", "日付はMMDD形式（4桁の数字）で入力してください。例: 0315")
+            return
+
         write_date = self.config.year + date_val
+
+        try:
+            datetime.strptime(write_date, "%Y%m%d")
+        except ValueError:
+            messagebox.showerror("エラー", f"無効な日付です: {write_date}\n正しいMMDD形式で入力してください。")
+            return
         write_year_month = write_date[:6]
         output_photo_dir = os.path.join(PHOTO_DIR, write_year_month)
 
@@ -209,7 +220,7 @@ class InvoicePage(BasePage):
             self.account_form.reset(default_kind="費用", default_item="接待交際費")
 
             if self.navigator.has_images:
-                path = self.navigator.next_image()
+                path = self.navigator.current()
                 if path:
                     self._display_image(path)
                 else:

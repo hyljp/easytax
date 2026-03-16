@@ -54,10 +54,20 @@ class ImageNavigator:
         if self.current_image_path and self.current_image_path in self.image_files:
             self.image_files.remove(self.current_image_path)
             if self.image_files:
-                self.current_index = self.current_index % len(self.image_files)
+                # Step back so the next call to current() or next_image()
+                # lands on the item that shifted into this position.
+                self.current_index = (self.current_index - 1) % len(self.image_files)
             else:
                 self.current_index = -1
             self.current_image_path = None
+
+    def current(self):
+        """Return the image at current_index + 1 (the next unprocessed image) without skipping."""
+        if not self.image_files:
+            return None
+        self.current_index = (self.current_index + 1) % len(self.image_files)
+        self.current_image_path = self.image_files[self.current_index]
+        return self.current_image_path
 
     def draw_on_canvas(self, canvas, image=None, image_path=None, zoom=1.0):
         if image is None and image_path is None:

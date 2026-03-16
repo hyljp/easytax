@@ -19,10 +19,10 @@ LEDGER_DIR = "./output/総勘定元帳and試算表"
 
 
 class LedgerPage(BasePage):
-    def __init__(self, parent):
+    def __init__(self, parent, config=None):
         super().__init__(parent)
 
-        self.config = ConfigManager()
+        self.config = config or ConfigManager()
         self._step1_folder = None
         self._step2_folder = None
         self._step3_folder = None

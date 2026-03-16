@@ -106,9 +106,9 @@ class EasyTaxApp(ctk.CTk):
 
         # Pages
         self.pages = {}
-        self.pages["invoice"] = InvoicePage(self.content)
-        self.pages["page2"] = LedgerPage(self.content)
-        self.pages["page3"] = FinancialPage(self.content)
+        self.pages["invoice"] = InvoicePage(self.content, config=self.config_manager)
+        self.pages["page2"] = LedgerPage(self.content, config=self.config_manager)
+        self.pages["page3"] = FinancialPage(self.content, config=self.config_manager)
 
         for page in self.pages.values():
             page.grid(row=0, column=0, sticky="nsew")
@@ -133,9 +133,9 @@ class EasyTaxApp(ctk.CTk):
             page.destroy()
 
         self.pages = {}
-        self.pages["invoice"] = InvoicePage(self.content)
-        self.pages["page2"] = LedgerPage(self.content)
-        self.pages["page3"] = FinancialPage(self.content)
+        self.pages["invoice"] = InvoicePage(self.content, config=self.config_manager)
+        self.pages["page2"] = LedgerPage(self.content, config=self.config_manager)
+        self.pages["page3"] = FinancialPage(self.content, config=self.config_manager)
 
         for page in self.pages.values():
             page.grid(row=0, column=0, sticky="nsew")

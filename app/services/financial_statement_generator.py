@@ -33,8 +33,8 @@ def generate_income_statement(tb_csv, config_data, year, output_dir):
             elif account in expense_accounts:
                 expenses[account] = debit
 
-    total_revenue = sum(revenues.values())
-    total_expense = sum(expenses.values())
+    total_revenue = sum(revenues.values(), Decimal("0"))
+    total_expense = sum(expenses.values(), Decimal("0"))
     net_income = total_revenue - total_expense
 
     out_path = os.path.join(output_dir, f"損益計算書_{year}.csv")

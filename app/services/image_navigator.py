@@ -70,32 +70,38 @@ class ImageNavigator:
         return self.current_image_path
 
     def draw_on_canvas(self, canvas, image=None, image_path=None, zoom=1.0):
+        opened_here = False
         if image is None and image_path is None:
             image_path = self.current_image_path
         if image is None and image_path:
             image = Image.open(image_path)
+            opened_here = True
 
         if image is None:
             return
 
-        canvas_w = canvas.winfo_width()
-        canvas_h = canvas.winfo_height()
-        if canvas_w <= 1 or canvas_h <= 1:
-            return
+        try:
+            canvas_w = canvas.winfo_width()
+            canvas_h = canvas.winfo_height()
+            if canvas_w <= 1 or canvas_h <= 1:
+                return
 
-        img_w, img_h = image.size
-        fit_scale = min(canvas_w / img_w, canvas_h / img_h)
-        scale = fit_scale * zoom
-        new_w = int(img_w * scale)
-        new_h = int(img_h * scale)
+            img_w, img_h = image.size
+            fit_scale = min(canvas_w / img_w, canvas_h / img_h)
+            scale = fit_scale * zoom
+            new_w = int(img_w * scale)
+            new_h = int(img_h * scale)
 
-        resized = image.resize((new_w, new_h), Image.LANCZOS)
-        self._photo = ImageTk.PhotoImage(resized)
+            resized = image.resize((new_w, new_h), Image.LANCZOS)
+            self._photo = ImageTk.PhotoImage(resized)
 
-        canvas.delete("all")
-        x_offset = (canvas_w - new_w) // 2
-        y_offset = (canvas_h - new_h) // 2
-        canvas.create_image(x_offset, y_offset, anchor="nw", image=self._photo)
+            canvas.delete("all")
+            x_offset = (canvas_w - new_w) // 2
+            y_offset = (canvas_h - new_h) // 2
+            canvas.create_image(x_offset, y_offset, anchor="nw", image=self._photo)
+        finally:
+            if opened_here:
+                image.close()
 
 
 def move_file(src, dest_dir, date, comment, price):

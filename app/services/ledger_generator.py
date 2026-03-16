@@ -1,6 +1,6 @@
 import csv
 import os
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 
 
 def _clean_amount(amount):

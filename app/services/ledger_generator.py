@@ -13,7 +13,10 @@ def create_general_ledger(input_csv, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
     ledger = {}
-    date_part = None
+    # Derive date_part from the input filename (仕訳帳_YYYYMM.csv)
+    basename = os.path.splitext(os.path.basename(input_csv))[0]
+    parts = basename.rsplit("_", 1)
+    date_part = parts[1] if len(parts) == 2 and parts[1].isdigit() else None
 
     with open(input_csv, mode="r", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
@@ -41,6 +44,9 @@ def create_general_ledger(input_csv, output_dir):
                     "伝票番号": row["伝票番号"],
                     "概要": row["概要"],
                 })
+
+    if date_part is None:
+        return [], None, ["スキップ: データ行がありません"]
 
     output_files = []
     messages = []

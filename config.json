@@ -76,14 +76,6 @@
             "field": "payment_method"
         },
         {
-            "header": "支払方式",
-            "field": "payment_method"
-        },
-        {
-            "header": "金額",
-            "field": "price"
-        },
-        {
             "header": "伝票番号",
             "field": "voucher_number"
         },

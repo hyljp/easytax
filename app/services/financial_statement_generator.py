@@ -29,9 +29,9 @@ def generate_income_statement(tb_csv, config_data, year, output_dir):
             credit = _clean_amount(row[2])
 
             if account in revenue_accounts:
-                revenues[account] = credit
+                revenues[account] = credit - debit
             elif account in expense_accounts:
-                expenses[account] = debit
+                expenses[account] = debit - credit
 
     total_revenue = sum(revenues.values(), Decimal("0"))
     total_expense = sum(expenses.values(), Decimal("0"))
@@ -85,15 +85,15 @@ def generate_balance_sheet(tb_csv, config_data, year, output_dir):
             credit = _clean_amount(row[2])
 
             if account in asset_accounts:
-                assets[account] = debit
+                assets[account] = debit - credit
             elif account in liability_accounts:
-                liabilities[account] = credit
+                liabilities[account] = credit - debit
             elif account in equity_accounts:
-                equity[account] = credit
+                equity[account] = credit - debit
             elif account in revenue_accounts:
-                total_revenue += credit
+                total_revenue += credit - debit
             elif account in expense_accounts:
-                total_expense += debit
+                total_expense += debit - credit
 
     net_income = total_revenue - total_expense
 

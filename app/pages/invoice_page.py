@@ -129,7 +129,7 @@ class InvoicePage(BasePage):
             self.current_image = img.copy()
         self._zoom = 1.0
         self._update_zoom_label()
-        self.navigator.draw_on_canvas(self.image_viewer.canvas, image_path=path, zoom=self._zoom)
+        self.navigator.draw_on_canvas(self.image_viewer.canvas, image=self.current_image, zoom=self._zoom)
         self.image_viewer.set_path_text(os.path.basename(path))
         self.image_viewer.set_counter_text(
             f"{self.navigator.current_position} / {self.navigator.count}"

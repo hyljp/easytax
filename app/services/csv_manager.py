@@ -55,9 +55,15 @@ def write_to_journal(data_dict, headers, fields, output_dir="./output"):
 
     rows.append(new_row)
 
+    def _parse_date_safe(val):
+        try:
+            return datetime.strptime(val, "%Y%m%d")
+        except (ValueError, TypeError):
+            return datetime.min
+
     data_rows = rows[1:]
     if date_idx is not None:
-        data_rows.sort(key=lambda x: datetime.strptime(x[date_idx], "%Y%m%d") if len(x) > date_idx and x[date_idx] else datetime.min)
+        data_rows.sort(key=lambda x: _parse_date_safe(x[date_idx]) if len(x) > date_idx else datetime.min)
 
     with open(filepath, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
